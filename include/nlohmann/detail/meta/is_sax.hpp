@@ -22,6 +22,10 @@ namespace detail
 
 template<typename T>
 using null_function_t = decltype(std::declval<T&>().null());
+// std::declval 将任意类型 T 转换成引用类型，使得在 decltype 说明符的操作数中不必经过构造函数就能使用成员函数。
+// 通常在模板中使用 std::declval，模板接受的模板实参通常可能无构造函数，但有同一成员函数，均返回所需类型。
+//
+//注意，std::declval 只能用于不求值语境，且不要求有定义；求值包含此函数的表达式是错误。正式的说法是 ODR 使用此函数的程序非良构。
 
 template<typename T>
 using boolean_function_t =
