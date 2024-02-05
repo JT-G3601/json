@@ -69,11 +69,27 @@ struct is_basic_json_context :
 template<typename>
 class json_ref;
 
+//使用 template <typename> 表示它接受一个类型参数。但是，在实际的类定义中，并没有使用该类型参数，
+// 因此这是一个参数无关的模板类。可能在实现中使用了默认的特化或其他模板技巧。
+
 template<typename>
 struct is_json_ref : std::false_type {};
 
 template<typename T>
 struct is_json_ref<json_ref<T>> : std::true_type {};
+
+//// 该部分使用示例
+/// 实例化 json_ref，其中 T 是 int
+//json_ref<int> myJsonRefInstance;
+//
+//// 使用 is_json_ref 检测类型是否为 json_ref
+//if (is_json_ref<decltype(myJsonRefInstance)>::value) {
+//    // 如果是 json_ref 类型
+//    std::cout << "It's a json_ref type!" << std::endl;
+//} else {
+//    // 如果不是 json_ref 类型
+//    std::cout << "It's not a json_ref type!" << std::endl;
+//}
 
 //////////////////////////
 // aliases for detected //
@@ -168,6 +184,7 @@ using detect_key_compare = typename T::key_compare;
 
 template<typename T>
 struct has_key_compare : std::integral_constant<bool, is_detected<detect_key_compare, T>::value> {};
+// std::integral_constant 包装特定类型的静态常量。它是 C++ 类型特征的基类。
 
 // obtains the actual object key comparator
 template<typename BasicJsonType>

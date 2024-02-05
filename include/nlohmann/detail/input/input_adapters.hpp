@@ -111,6 +111,8 @@ class input_stream_adapter
         rhs.is = nullptr;
         rhs.sb = nullptr;
     }
+    // 为什么不用 std::move() ?
+    // 普通可复制类型“std::istream *”（又名“basic_istream<char> *”）的表达式的 std::move 无效；
 
     // std::istream/std::streambuf use std::char_traits<char>::to_int_type, to
     // ensure that std::char_traits<char>::eof() and the character 0xFF do not
@@ -170,6 +172,7 @@ class iterator_input_adapter
     }
 };
 
+// 提供一个 fill_buffer()，用于将来自 BaseInputAdapter 的宽字符转换为 UTF-8 编码的字符序列
 template<typename BaseInputAdapter, size_t T>
 struct wide_string_input_helper;
 
@@ -358,6 +361,7 @@ struct is_iterator_of_multibyte
     enum
     {
         value = sizeof(value_type) > 1
+        // 创建编译器常量 value，探测 value_type 是否为多字节类型
     };
 };
 
@@ -382,6 +386,7 @@ typename iterator_input_adapter_factory<IteratorType>::adapter_type input_adapte
     using factory_type = iterator_input_adapter_factory<IteratorType>;
     return factory_type::create(first, last);
 }
+// 对 factory_adapter 包装，使用时不必关心底层 adapter
 
 // Convenience shorthand from container to iterator
 // Enables ADL on begin(container) and end(container)
@@ -456,6 +461,7 @@ auto input_adapter(T (&array)[N]) -> decltype(input_adapter(array, array + N)) /
 {
     return input_adapter(array, array + N);
 }
+// T (&array)[N] 是一个数组引用参数
 
 // This class only handles inputs of input_buffer_adapter type.
 // It's required so that expressions like {ptr, len} can be implicitly cast
@@ -478,6 +484,7 @@ class span_input_adapter
                  int>::type = 0>
     span_input_adapter(IteratorType first, IteratorType last)
         : ia(input_adapter(first, last)) {}
+    // 对 IteratorType 是随机访问迭代器的特化版本
 
     contiguous_bytes_input_adapter&& get()
     {

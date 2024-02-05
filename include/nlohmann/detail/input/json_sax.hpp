@@ -41,7 +41,7 @@ struct json_sax
     @return whether parsing should proceed
     */
     virtual bool null() = 0;
-
+    // = 0表示这是一个纯虚函数
     /*!
     @brief a boolean value was read
     @param[in] val  boolean value
@@ -140,6 +140,7 @@ struct json_sax
     json_sax& operator=(const json_sax&) = default;
     json_sax& operator=(json_sax&&) noexcept = default;
     virtual ~json_sax() = default;
+    // json_sax 只允许移动构造
 };
 
 namespace detail
@@ -246,6 +247,7 @@ class json_sax_dom_parser
         object_element = &(ref_stack.back()->m_data.m_value.object->operator[](val));
         return true;
     }
+
 
     bool end_object()
     {
@@ -579,6 +581,7 @@ class json_sax_dom_callback_parser
         auto value = BasicJsonType(std::forward<Value>(v));
 
         // check callback
+        // 通过 callback 来决定是否保留 value
         const bool keep = skip_callback || callback(static_cast<int>(ref_stack.size()), parse_event_t::value, value);
 
         // do not handle this value if we just learnt it shall be discarded

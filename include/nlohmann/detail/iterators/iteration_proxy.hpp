@@ -70,6 +70,7 @@ template<typename IteratorType> class iteration_proxy_value
     iteration_proxy_value(iteration_proxy_value&&)
     noexcept(std::is_nothrow_move_constructible<IteratorType>::value
              && std::is_nothrow_move_constructible<string_type>::value) = default; // NOLINT(hicpp-noexcept-move,performance-noexcept-move-constructor,cppcoreguidelines-noexcept-move-operations)
+    // noexcept() 括号里的内容是使用 noexcept 的条件
     iteration_proxy_value& operator=(iteration_proxy_value&&)
     noexcept(std::is_nothrow_move_assignable<IteratorType>::value
              && std::is_nothrow_move_assignable<string_type>::value) = default; // NOLINT(hicpp-noexcept-move,performance-noexcept-move-constructor,cppcoreguidelines-noexcept-move-operations)

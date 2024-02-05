@@ -40,6 +40,13 @@ class json_pointer
 
     template<typename>
     friend class json_pointer;
+    // template<typename> 没有指定具体的模板参数
+    // 通常被称为模板模板参数，在这种情况下，模板本身
+    // 是一个参数，他期望接受一个模板作为实际的参数
+
+    // 将自己声明为自己的友元是合法的，这样的声明可以在特定情况下是有用的，
+    // 例如，当一个类的不同实例之间需要访问彼此的私有成员时。通过将自己声明为友元，
+    // 类的不同实例之间可以共享对彼此私有成员的访问权限。
 
     template<typename T>
     struct string_t_helper
@@ -191,6 +198,7 @@ class json_pointer
     {
         reference_tokens.push_back(std::move(token));
     }
+    // 对 token 使用 std::move() 转移所有权
 
     /// @brief return whether pointer points to the root document
     /// @sa https://json.nlohmann.me/api/json_pointer/empty/
@@ -212,6 +220,9 @@ class json_pointer
     */
     template<typename BasicJsonType>
     static typename BasicJsonType::size_type array_index(const string_t& s)
+    // static 表示该函数是一个静态成员函数，可以通过类名直接调用，而不需要创建实例。
+    // typename BasicJsonType::size_type: 使用 BasicJsonType 类模板的 size_type 类型。
+    // 这部分是为了使函数能够适用于不同的 JSON 类型，因为 JSON 类型可能定义了不同的 size_type。
     {
         using size_type = typename BasicJsonType::size_type;
 
@@ -322,7 +333,9 @@ class json_pointer
                 case detail::value_t::number_unsigned:
                 case detail::value_t::number_float:
                 case detail::value_t::binary:
-                case detail::value_t::discarded:
+                case detail::value_t::discarded: // 如果 JSON 值的类型是字符串、布尔值、整数、无符号整数、
+                                                 // 浮点数、二进制数据或者是一个被废弃的值，那么这些类型只
+                                                 // 应该出现在 JSON 文档的叶子节点上。我们检查的是非叶子节点
                 default:
                     JSON_THROW(detail::type_error::create(313, "invalid value to unflatten", &j));
             }
@@ -435,6 +448,10 @@ class json_pointer
                 case detail::value_t::array:
                 {
                     if (JSON_HEDLEY_UNLIKELY(reference_token == "-"))
+                    // 在 JSON Pointer 中，- 用作数组索引的特殊标记。当 JSON Pointer 的引用路径指向一个数组时，
+                    // 可以使用 - 作为引用标记，表示数组的末尾。在这个上下文中，- 不是一个有效的数组索引值，而是表示
+                    // 数组的最后一个元素之后的位置。当引用标记为 - 时，会抛出一个 out_of_range 异常，因为 - 不能
+                    // 作为一个有效的数组索引值。这是为了防止使用 - 引用数组的最后一个元素，而应该使用实际的索引值
                     {
                         // "-" always fails the range check
                         JSON_THROW(detail::out_of_range::create(402, detail::concat(
@@ -714,6 +731,8 @@ class json_pointer
                     JSON_THROW(detail::parse_error::create(108, 0, "escape character '~' must be followed with '0' or '1'", nullptr));
                 }
             }
+            // 在 JSON 中，斜杠 / 主要用于分隔对象的键，表示层级关系。
+            // 在 JSON 中，波浪号 ~ 用作转义字符。它与后面的数字组合表示特定的字符，用于在键名中包含一些特殊字符。
 
             // finally, store the reference token
             detail::unescape(reference_token);
@@ -743,11 +762,13 @@ class json_pointer
                 if (value.m_data.m_value.array->empty())
                 {
                     // flatten empty array as null
+                    // 若数组为空，将引用路径和空指针添加到结果对象
                     result[reference_string] = nullptr;
                 }
                 else
                 {
                     // iterate array and use index as reference string
+                    // 遍历数组并使用索引构建新的引用路径，递归调用 flatten
                     for (std::size_t i = 0; i < value.m_data.m_value.array->size(); ++i)
                     {
                         flatten(detail::concat(reference_string, '/', std::to_string(i)),

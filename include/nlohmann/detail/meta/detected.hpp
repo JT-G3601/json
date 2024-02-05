@@ -26,6 +26,7 @@ struct nonesuch
     void operator=(nonesuch const&) = delete;
     void operator=(nonesuch&&) = delete;
 };
+// 不可实例化，不可复制，用作占位符
 
 template<class Default,
          class AlwaysVoid,
@@ -43,6 +44,7 @@ struct detector<Default, void_t<Op<Args...>>, Op, Args...>
     using value_t = std::true_type;
     using type = Op<Args...>;
 };
+// 当 <Op<Args...>> 可以成功实例化时的特化      类型
 
 template<template<class...> class Op, class... Args>
 using is_detected = typename detector<nonesuch, void, Op, Args...>::value_t;
